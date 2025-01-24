@@ -19,12 +19,25 @@ export default class StudentsController {
       res.end('Major parameter must be CS or SWE');
     } else {
       try {
-        const studentsData = await countStudents('../database.csv');
+        const studentsData = await countStudents('./database.csv');
         const lines = studentsData.split('\n');
+  
+        // Filtrer les étudiants par major
         const filteredStudents = lines
-          .filter((line) => line.includes(major))
-          .map((line) => line.split(',')[0])
-          .join(', ');
+          .slice(1) // Ignorer l'en-tête
+          .filter((line) => {
+            const fields = line.split(','); // Diviser la ligne en champs
+            if (fields.length >= 4) { // Vérifier qu'il y a au moins 4 champs
+              const field = fields[3].trim(); // Récupérer le champ "field" et supprimer les espaces
+              return field === major; // Filtrer par major
+            }
+            return false; // Ignorer les lignes mal formatées
+          })
+          .map((line) => line.split(',')[0].trim()) // Récupérer le prénom et supprimer les espaces
+          .join(', '); // Joindre les prénoms avec une virgule
+  
+        console.log(`Filtered students for ${major}:`, filteredStudents); // Log pour déboguer
+  
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end(`List: ${filteredStudents}`);
       } catch (error) {

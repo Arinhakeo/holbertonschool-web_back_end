@@ -5,7 +5,7 @@ const readDatabase = async (filePath) => {
     const data = await fs.readFile(filePath, 'utf8');
     const lines = data.trim().split('\n').slice(1);
     const studentsByField = lines.reduce((acc, line) => {
-      const [firstname, , , field] = line.split(',');
+    const [firstname, , , field] = line.split(',');
       
       if (!acc[field]) {
         acc[field] = [];

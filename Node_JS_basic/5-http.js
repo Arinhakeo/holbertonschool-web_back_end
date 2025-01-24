@@ -1,19 +1,61 @@
 const http = require('http');
-const countStudents = require('./3-read_file_async');
+const fs = require('fs');
+
+function countStudents(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, 'utf-8', (err, data) => {
+      if (err) {
+        reject(new Error('Cannot load the database'));
+        return;
+      }
+
+      const lines = data.split('\n').filter((line) => line.trim() !== '');
+      lines.shift(); // Remove header row
+
+      const students = {};
+      let totalStudents = 0;
+
+      lines.forEach((line) => {
+        const [firstname, , , field] = line.split(',');
+
+        if (firstname && field) {
+          totalStudents += 1;
+
+          if (!students[field]) {
+            students[field] = [];
+          }
+
+          students[field].push(firstname);
+        }
+      });
+
+      let output = `Number of students: ${totalStudents}\n`;
+      for (const [field, names] of Object.entries(students)) {
+        output += `Number of students in ${field}: ${names.length}. List: ${names.join(', ')}\n`;
+      }
+
+      resolve(output.trim());
+    });
+  });
+}
 
 const app = http.createServer(async (req, res) => {
-  const url = req.url;
-  const dbFilePath = process.argv[2];
-
-  if (url === '/') {
+  if (req.url === '/') {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Hello Holberton School!');
-  } else if (url === '/students') {
+  } else if (req.url === '/students') {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.write('This is the list of our students\n');
+
+    const databasePath = process.argv[2];
+    if (!databasePath) {
+      res.end('Cannot load the database');
+      return;
+    }
+
     try {
-      const studentsData = await countStudents(dbFilePath); // Récupère les données des étudiants
-      res.end(studentsData); // Envoie les données des étudiants dans la réponse
+      const studentData = await countStudents(databasePath);
+      res.end(studentData);
     } catch (error) {
       res.end(error.message);
     }
@@ -23,8 +65,5 @@ const app = http.createServer(async (req, res) => {
   }
 });
 
-app.listen(1245, () => {
-  console.log('Server listening on port 1245');
-});
-
+app.listen(1245);
 module.exports = app;

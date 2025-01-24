@@ -6,8 +6,8 @@
     "scripts": {
         "lint": "eslint",
         "check-lint": "lint [0-9]*.js",
-        "test": "./node_modules/mocha/bin/mocha --require babel-register --exit",
-        "dev": "nodemon --exec babel-node --presets babel-preset-env ./server.js ./database.csv"
+        "test": "mocha --require @babel/register 'test/**/*.js'",
+        "dev": "nodemon --exec babel-node --presets @babel/preset-env ./5-http.js database.csv"
     },
     "author": "Arinha",
     "license": "ISC",
