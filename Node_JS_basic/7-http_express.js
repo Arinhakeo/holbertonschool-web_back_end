@@ -15,6 +15,10 @@ app.get('/', (req, res) => {
 app.get('/students', async (req, res) => {
   const dbPath = process.argv[2]; // Récupérer le chemin du fichier de la base de données à partir des arguments de la ligne de commande
   
+  if (!dbPath) {
+    return res.status(500).send('Database path is missing');
+  }
+
   try {
     const result = await countStudents(dbPath); // Appeler la fonction countStudents avec le chemin de la base de données
     res.send(`This is the list of our students\n${result}`);
