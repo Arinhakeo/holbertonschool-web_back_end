@@ -1,41 +1,36 @@
-import readDatabase from '../utils.js';
+import countStudents from '../../3-read_file_async';
 
-class StudentsController {
+export default class StudentsController {
   static async getAllStudents(req, res) {
     try {
-      const students = await readDatabase(process.argv[2]);
-      let output = 'This is the list of our students\n';
-      
-      // Trier les domaines alphabétiquement
-      const sortedFields = Object.keys(students).sort((a, b) => 
-        a.localeCompare(b, 'en', {sensitivity: 'base'}));
-      
-      sortedFields.forEach(field => {
-        output += `Number of students in ${field}: ${students[field].length}. `;
-        output += `List: ${students[field].join(', ')}\n`;
-      });
-      
-      res.status(200).send(output);
+      const studentsData = await countStudents('../database.csv');
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end(`This is the list of our students\n${studentsData}`);
     } catch (error) {
-      res.status(500).send('Cannot load the database');
+      res.writeHead(500, { 'Content-Type': 'text/plain' });
+      res.end('Cannot load the database');
     }
   }
 
   static async getAllStudentsByMajor(req, res) {
-    const { major } = req.params;
-    
+    const major = req.url.split('/')[2];
     if (major !== 'CS' && major !== 'SWE') {
-      return res.status(500).send('Major parameter must be CS or SWE');
-    }
-    
-    try {
-      const students = await readDatabase(process.argv[2]);
-      const list = students[major] || [];
-      res.status(200).send(`List: ${list.join(', ')}`);
-    } catch (error) {
-      res.status(500).send('Cannot load the database');
+      res.writeHead(500, { 'Content-Type': 'text/plain' });
+      res.end('Major parameter must be CS or SWE');
+    } else {
+      try {
+        const studentsData = await countStudents('../database.csv');
+        const lines = studentsData.split('\n');
+        const filteredStudents = lines
+          .filter((line) => line.includes(major))
+          .map((line) => line.split(',')[0])
+          .join(', ');
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end(`List: ${filteredStudents}`);
+      } catch (error) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Cannot load the database');
+      }
     }
   }
 }
-
-export default StudentsController;

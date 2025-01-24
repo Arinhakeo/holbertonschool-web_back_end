@@ -1,11 +1,22 @@
-import express from 'express';
-import AppController from '../controllers/AppController.js';
-import StudentsController from '../controllers/StudentsController.js';
+import { createServer } from 'http';
+import StudentsController from '../controllers/StudentsController';
 
-const router = express.Router();
+const router = (req, res) => {
+  const url = req.url;
 
-router.get('/', AppController.getHomepage);
-router.get('/students', StudentsController.getAllStudents);
-router.get('/students/:major', StudentsController.getAllStudentsByMajor);
+  if (url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Hello Holberton School!');
+  } else if (url === '/students') {
+    StudentsController.getAllStudents(req, res);
+  } else if (url.startsWith('/students/')) {
+    StudentsController.getAllStudentsByMajor(req, res);
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+  }
+};
 
-export default router;
+const app = createServer(router);
+
+export default app;
