@@ -1,4 +1,3 @@
-// 3-read_file_async.js
 const fs = require('fs').promises;
 
 async function countStudents(path) {
@@ -14,10 +13,12 @@ async function countStudents(path) {
       fields[field].push(firstname);
     });
 
-    console.log(`Number of students: ${students.length}`);
+    let result = `Number of students: ${students.length}\n`;
     for (const [field, names] of Object.entries(fields)) {
-      console.log(`Number of students in ${field}: ${names.length}. List: ${names.join(', ')}`);
+      result += `Number of students in ${field}: ${names.length}. List: ${names.join(', ')}\n`;
     }
+
+    return result; // Retourne la chaîne de caractères au lieu de l'afficher
   } catch (error) {
     throw new Error('Cannot load the database');
   }
