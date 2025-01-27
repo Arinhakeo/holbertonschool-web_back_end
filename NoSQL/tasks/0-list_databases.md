@@ -20,9 +20,6 @@ guillaume@ubuntu:~/$
 - Répertoire GitHub : `holbertonschool-web_back_end`
 - Répertoire : `NoSQL`
 - Fichier : `0-list_databases`
-```
-
----
 
 ### Explication Détaillée
 
